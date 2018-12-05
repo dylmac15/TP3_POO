@@ -81,4 +81,19 @@ public class MainActivity extends AppCompatActivity {
         clipboard.setPrimaryClip(ClipData.newPlainText(getResources().getString(R.string.clipboard_encrypted_text), text));
     }
 
+    public void onCopyButtonClicked(View view) {
+
+    }
+
+    public void onKeySelectButtonClicked(View view) {
+
+    }
+
+    public void onDecryptButtonClicked(View view) {
+
+    }
+
+    public void onEncryptButtonClicked(View view) {
+
+    }
 }
