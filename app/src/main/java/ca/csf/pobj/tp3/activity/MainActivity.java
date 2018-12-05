@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchSubstitutionCypherKey(int key) {
-        //TODO
+
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -81,4 +81,18 @@ public class MainActivity extends AppCompatActivity {
         clipboard.setPrimaryClip(ClipData.newPlainText(getResources().getString(R.string.clipboard_encrypted_text), text));
     }
 
+    public void onKeySelectButtonClicked(View view) {
+        this.showKeyPickerDialog(KEY_LENGTH);
+    }
+
+    public void onEncryptButtonClicked(View view) {
+    }
+
+    public void onDecryptButtonClicked(View view) {
+    }
+
+    public void onCopyButtonClicked(View view) {
+        this.putTextInClipboard(outputTextView.getText().toString());
+        this.showCopiedToClipboardMessage();
+    }
 }
