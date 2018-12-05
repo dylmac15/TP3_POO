@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchSubstitutionCypherKey(int key) {
-
+        //TODO
     }
 
     @SuppressWarnings("ConstantConditions")
