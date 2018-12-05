@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.LinkedList;
 import java.util.List;
 
-import ca.csf.mobile1.utils.R;
+import ca.csf.pobj.tp3.utils.R;
 
 /**
  * Dialogue permettant de saisir une clé de chiffrement via une interface simplifiée.
