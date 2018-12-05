@@ -8,4 +8,8 @@ public class CeasarCipher {
         this.cipherKey = cipherKey;
     }
 
+    public void encrypt(){
+
+    }
+
 }
