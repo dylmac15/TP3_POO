@@ -4,6 +4,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
@@ -24,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int KEY_LENGTH = 5;
     private static final int MAX_KEY_VALUE = (int) Math.pow(10, KEY_LENGTH) - 1;
+
+    private FetchCipherKeyTask task;
 
     private View rootView;
     private EditText inputEditText;
@@ -72,7 +75,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchSubstitutionCypherKey(int key) {
-        //TODO
+        FetchCipherKeyTask task = new FetchCipherKeyTask();
+        task.execute(key);
     }
 
     @SuppressWarnings("ConstantConditions")
