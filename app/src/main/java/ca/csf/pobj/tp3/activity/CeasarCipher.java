@@ -21,8 +21,17 @@ public class CeasarCipher {
         return stringBuilder;
     }
 
-    public void decrypt() {
-
+    public StringBuilder decrypt(String string) {
+        StringBuilder stringBuilder = new StringBuilder();
+        
+        for (Character character : cipherKey.getOutputCharacters().toCharArray()) {
+            for (Character stringCharacter : string.toCharArray()) {
+                if (stringCharacter.equals(character)) {
+                    stringBuilder.append(cipherKey.getInputCharacters().charAt(cipherKey.getOutputCharacters().indexOf(character)));
+                }
+            }
+        }
+        return stringBuilder;
     }
 
 

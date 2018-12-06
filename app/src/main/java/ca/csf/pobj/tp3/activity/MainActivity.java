@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
         outputTextView = findViewById(R.id.output_textview);
         currentKeyTextView = findViewById(R.id.current_key_textview);
         currentKeyTextView.setText(String.valueOf(randomKey()));
+        this.fetchSubstitutionCypherKey(Integer.parseInt(currentKeyTextView.getText().toString()));
+
     }
 
     private int randomKey() {
@@ -109,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
     }
 
     public void onDecryptButtonClicked(View view) {
+        ceasarCipher = new CeasarCipher(cipherKey);
+        outputTextView.setText(ceasarCipher.decrypt(outputTextView.getText().toString()));
     }
 
     public void onCopyButtonClicked(View view) {
