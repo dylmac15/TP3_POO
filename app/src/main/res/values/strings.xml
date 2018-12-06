@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Substitution Cypher</string>
+    <string name="app_name">Substitution Cipher</string>
 
     <string name="hint_input_text">Tap to input some text</string>
     <string name="text_encrypt">Encrypt</string>

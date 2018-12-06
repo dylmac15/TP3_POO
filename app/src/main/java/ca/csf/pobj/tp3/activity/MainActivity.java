@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
     private ProgressBar progressBar;
     private CeasarCipher ceasarCipher;
     private CipherKey cipherKey;
+    private int currentkey;
 
     @Override
     public void outputCypherKeyFound(CipherKey cipherKey) {
@@ -51,8 +52,11 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
         inputEditText.setFilters(new InputFilter[]{new CharactersFilter()});
         outputTextView = findViewById(R.id.output_textview);
         currentKeyTextView = findViewById(R.id.current_key_textview);
-        currentKeyTextView.setText(String.valueOf(randomKey()));
-        this.fetchSubstitutionCypherKey(Integer.parseInt(currentKeyTextView.getText().toString()));
+        currentkey = randomKey();
+        String formattedKey = String.format(getResources().getString(R.string.text_current_key), currentkey);
+        currentKeyTextView.setText(formattedKey);
+
+        this.fetchSubstitutionCypherKey(currentkey);
 
     }
 
@@ -91,8 +95,11 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
     private void fetchSubstitutionCypherKey(int key) {
         FetchCipherKeyTask task = new FetchCipherKeyTask();
         task.execute(key);
+        currentkey = key;
         task.addListener(this);
-        currentKeyTextView.setText(String.valueOf(key));
+        //TODO on create pas faire squia en dessous
+        String currentKey = String.format(getResources().getString(R.string.text_current_key), key);
+        currentKeyTextView.setText(currentKey);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -102,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
     }
 
     public void onKeySelectButtonClicked(View view) {
-        this.showKeyPickerDialog(Integer.parseInt(currentKeyTextView.getText().toString()));
+        this.showKeyPickerDialog(currentkey);
     }
 
     public void onEncryptButtonClicked(View view) {
@@ -112,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
 
     public void onDecryptButtonClicked(View view) {
         ceasarCipher = new CeasarCipher(cipherKey);
-        outputTextView.setText(ceasarCipher.decrypt(outputTextView.getText().toString()));
+        outputTextView.setText(ceasarCipher.decrypt(inputEditText.getText().toString()));
     }
 
     public void onCopyButtonClicked(View view) {
