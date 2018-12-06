@@ -4,7 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
@@ -15,24 +14,31 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.security.PrivateKey;
 import java.util.Random;
 
 import ca.csf.pobj.tp3.R;
 import ca.csf.pobj.tp3.utils.view.CharactersFilter;
 import ca.csf.pobj.tp3.utils.view.KeyPickerDialog;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FetchCipherKeyTask.Listener {
 
     private static final int KEY_LENGTH = 5;
     private static final int MAX_KEY_VALUE = (int) Math.pow(10, KEY_LENGTH) - 1;
-
-    private FetchCipherKeyTask task;
-
+    private static final int MIN_RANDOM_VALUE = 0;
+    private static final int MAX_RANDOM_VALUE = (int) Math.pow(10, KEY_LENGTH);
     private View rootView;
     private EditText inputEditText;
     private TextView outputTextView;
     private TextView currentKeyTextView;
     private ProgressBar progressBar;
+    private CeasarCipher ceasarCipher;
+    private CipherKey cipherKey;
+
+    @Override
+    public void outputCypherKeyFound(CipherKey cipherKey) {
+        this.cipherKey = cipherKey;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +51,12 @@ public class MainActivity extends AppCompatActivity {
         inputEditText.setFilters(new InputFilter[]{new CharactersFilter()});
         outputTextView = findViewById(R.id.output_textview);
         currentKeyTextView = findViewById(R.id.current_key_textview);
+        currentKeyTextView.setText(String.valueOf(randomKey()));
+    }
+
+    private int randomKey() {
+        Random random = new Random();
+        return random.nextInt(MAX_RANDOM_VALUE - MIN_RANDOM_VALUE) + MIN_RANDOM_VALUE;
     }
 
     private void showKeyPickerDialog(int key) {
@@ -77,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
     private void fetchSubstitutionCypherKey(int key) {
         FetchCipherKeyTask task = new FetchCipherKeyTask();
         task.execute(key);
+        task.addListener(this);
+        currentKeyTextView.setText(String.valueOf(key));
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -86,10 +100,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onKeySelectButtonClicked(View view) {
-        this.showKeyPickerDialog(KEY_LENGTH);
+        this.showKeyPickerDialog(Integer.parseInt(currentKeyTextView.getText().toString()));
     }
 
     public void onEncryptButtonClicked(View view) {
+        ceasarCipher = new CeasarCipher(cipherKey);
+        outputTextView.setText(ceasarCipher.encrypt(inputEditText.getText().toString()));
     }
 
     public void onDecryptButtonClicked(View view) {

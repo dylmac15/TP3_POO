@@ -29,8 +29,10 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
 
     @Override
     protected CipherKey doInBackground(Integer... integers) {
-        if (integers.length != 1)
+        if (integers.length != 1){
             throw new IllegalArgumentException("You must provide one word.");
+        }
+
 
         OkHttpClient client = new OkHttpClient();
 
@@ -47,10 +49,7 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
                 String responseBody = response.body().string();
 
                 ObjectMapper mapper = new ObjectMapper();
-
-
-                CipherKey cipherKey = mapper.readValue(responseBody, CipherKey.class);
-
+                CipherKey cipherKey =  mapper.readValue(responseBody, CipherKey.class);
                 return cipherKey;
             } else {
                 //TODO : Erreur de serveur. Avertir nos listeners dans "onPostExecute"

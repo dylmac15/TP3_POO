@@ -8,8 +8,22 @@ public class CeasarCipher {
         this.cipherKey = cipherKey;
     }
 
-    public void encrypt(){
+    public StringBuilder encrypt(String string) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (Character character : cipherKey.getInputCharacters().toCharArray()) {
+            for (Character stringCharacter : string.toCharArray()) {
+                if (stringCharacter.equals(character)) {
+                    stringBuilder.append(cipherKey.getOutputCharacters().charAt(cipherKey.getInputCharacters().indexOf(character)));
+                }
+            }
+        }
+        return stringBuilder;
+    }
+
+    public void decrypt() {
 
     }
+
 
 }
