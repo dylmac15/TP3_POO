@@ -84,11 +84,12 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
                 .show();
     }
 
+    @Override
     public void showProgressBar() {
         progressBar.setVisibility(View.VISIBLE);
     }
 
-
+    @Override
     public void hideProgressBar() {
         progressBar.setVisibility(View.INVISIBLE);
     }

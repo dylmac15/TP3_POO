@@ -28,6 +28,9 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
 
     @Override
     protected void onPreExecute() {
+        for (Listener listener : listeners) {
+            listener.showProgressBar();
+        }
     }
 
     @Override
@@ -67,11 +70,14 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
     protected void onPostExecute(CipherKey cipherKey) {
         for (Listener listener : listeners) {
             listener.outputCypherKeyFound(cipherKey);
+            listener.hideProgressBar();
         }
 
     }
 
     public interface Listener {
         void outputCypherKeyFound(CipherKey cipherKey);
+        void showProgressBar();
+        void hideProgressBar();
     }
 }
