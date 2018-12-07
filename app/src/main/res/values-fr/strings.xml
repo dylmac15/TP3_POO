@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Chiffrement de César</string>
+
+    <string name="hint_input_text">Tapez pour entrer du texte</string>
+    <string name="text_encrypt">Encrypter</string>
+    <string name="text_decrypt">Decrypter</string>
+    <string name="hint_output_text">Le résultat apparaîtra ici</string>
+    <string name="text_current_key">Clé : %05d</string>
+    <string name="text_copy">Copié</string>
+
+    <string name="text_connectivity_error">Vous n\'êtes pas connecté a internet.</string>
+    <string name="text_server_error">Le server est en maintenance. SVP, veuillez réessayer plus tard.</string>
+    <string name="text_copied_output">Copié!</string>
+
+    <string name="text_activate_wifi">Activer le Wifi</string>
+
+    <string name="clipboard_encrypted_text">Texte encrypté</string>
+</resources>
