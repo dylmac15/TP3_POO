@@ -14,7 +14,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.security.PrivateKey;
 import java.util.Random;
 
 import ca.csf.pobj.tp3.R;
@@ -32,11 +31,11 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
     private TextView outputTextView;
     private TextView currentKeyTextView;
     private ProgressBar progressBar;
-    private CeasarCipher ceasarCipher;
+    private CaesarCipher caesarCipher;
     private CipherKey cipherKey;
-    private int currentkey;
+    private int currentKey;
 
-    @Override
+
     public void outputCypherKeyFound(CipherKey cipherKey) {
         this.cipherKey = cipherKey;
     }
@@ -52,12 +51,10 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
         inputEditText.setFilters(new InputFilter[]{new CharactersFilter()});
         outputTextView = findViewById(R.id.output_textview);
         currentKeyTextView = findViewById(R.id.current_key_textview);
-        currentkey = randomKey();
-        String formattedKey = String.format(getResources().getString(R.string.text_current_key), currentkey);
+        currentKey = randomKey();
+        String formattedKey = String.format(getResources().getString(R.string.text_current_key), currentKey);
         currentKeyTextView.setText(formattedKey);
-
-        this.fetchSubstitutionCypherKey(currentkey);
-
+        this.fetchSubstitutionCypherKey(currentKey);
     }
 
     private int randomKey() {
@@ -87,6 +84,15 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
                 .show();
     }
 
+    public void showProgressBar() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+
+    public void hideProgressBar() {
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
     private void showWifiSettings() {
         Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
         startActivity(intent);
@@ -95,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
     private void fetchSubstitutionCypherKey(int key) {
         FetchCipherKeyTask task = new FetchCipherKeyTask();
         task.execute(key);
-        currentkey = key;
+        currentKey = key;
         task.addListener(this);
         //TODO on create pas faire squia en dessous
         String currentKey = String.format(getResources().getString(R.string.text_current_key), key);
@@ -109,21 +115,22 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
     }
 
     public void onKeySelectButtonClicked(View view) {
-        this.showKeyPickerDialog(currentkey);
+        this.showKeyPickerDialog(currentKey);
     }
 
     public void onEncryptButtonClicked(View view) {
-        ceasarCipher = new CeasarCipher(cipherKey);
-        outputTextView.setText(ceasarCipher.encrypt(inputEditText.getText().toString()));
+        caesarCipher = new CaesarCipher(cipherKey);
+        outputTextView.setText(caesarCipher.encrypt(inputEditText.getText().toString()));
     }
 
     public void onDecryptButtonClicked(View view) {
-        ceasarCipher = new CeasarCipher(cipherKey);
-        outputTextView.setText(ceasarCipher.decrypt(inputEditText.getText().toString()));
+        caesarCipher = new CaesarCipher(cipherKey);
+        outputTextView.setText(caesarCipher.decrypt(inputEditText.getText().toString()));
     }
 
     public void onCopyButtonClicked(View view) {
         this.putTextInClipboard(outputTextView.getText().toString());
         this.showCopiedToClipboardMessage();
     }
+
 }

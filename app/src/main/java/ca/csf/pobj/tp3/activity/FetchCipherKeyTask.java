@@ -20,11 +20,14 @@ import okhttp3.Response;
 public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
 
     private static final String URL = "https://m1t2.csfpwmjv.tk/api/key/%d";
-
     private final List<Listener> listeners = new ArrayList();
 
     public void addListener(Listener listener) {
         listeners.add(listener);
+    }
+
+    @Override
+    protected void onPreExecute() {
     }
 
     @Override
@@ -33,9 +36,7 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
             throw new IllegalArgumentException("You must provide one word.");
         }
 
-
         OkHttpClient client = new OkHttpClient();
-
 
         Request request = new Request.Builder()
                 .url(String.format(URL, integers[0]))
@@ -67,6 +68,7 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
         for (Listener listener : listeners) {
             listener.outputCypherKeyFound(cipherKey);
         }
+
     }
 
     public interface Listener {

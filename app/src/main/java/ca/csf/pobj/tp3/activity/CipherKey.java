@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CipherKey {
 
     public int id;
-    public String outputCharacters;
-    public String inputCharacters;
+    private String outputCharacters;
+    private String inputCharacters;
 
 
     @JsonCreator

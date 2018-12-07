@@ -1,10 +1,10 @@
 package ca.csf.pobj.tp3.activity;
 
-public class CeasarCipher {
+public class CaesarCipher {
 
     private CipherKey cipherKey;
 
-    public CeasarCipher(CipherKey cipherKey) {
+    public CaesarCipher(CipherKey cipherKey) {
         this.cipherKey = cipherKey;
     }
 
@@ -33,5 +33,6 @@ public class CeasarCipher {
         }
         return stringBuilder;
     }
+
 
 }
