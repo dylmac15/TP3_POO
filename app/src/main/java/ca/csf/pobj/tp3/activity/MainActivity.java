@@ -26,6 +26,9 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
     private static final int MAX_KEY_VALUE = (int) Math.pow(10, KEY_LENGTH) - 1;
     private static final int MIN_RANDOM_VALUE = 0;
     private static final int MAX_RANDOM_VALUE = (int) Math.pow(10, KEY_LENGTH);
+    public static final int ERROR_ONE = 1;
+    public static final int ERROR_TWO = 2;
+    public static final int NO_ERROR = 0;
     private View rootView;
     private EditText inputEditText;
     private TextView outputTextView;
@@ -51,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
         inputEditText.setFilters(new InputFilter[]{new CharactersFilter()});
         outputTextView = findViewById(R.id.output_textview);
         currentKeyTextView = findViewById(R.id.current_key_textview);
+
         currentKey = randomKey();
         String formattedKey = String.format(getResources().getString(R.string.text_current_key), currentKey);
         currentKeyTextView.setText(formattedKey);
@@ -73,11 +77,13 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
         Snackbar.make(rootView, R.string.text_copied_output, Snackbar.LENGTH_SHORT).show();
     }
 
+
     private void showConnectionError() {
         Snackbar.make(rootView, R.string.text_connectivity_error, Snackbar.LENGTH_INDEFINITE)
                 .setAction(R.string.text_activate_wifi, (view) -> showWifiSettings())
                 .show();
     }
+
 
     private void showServerError() {
         Snackbar.make(rootView, R.string.text_server_error, Snackbar.LENGTH_INDEFINITE)
@@ -94,6 +100,16 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
         progressBar.setVisibility(View.INVISIBLE);
     }
 
+    @Override
+    public void showErrorMessage(int error) {
+        if (error == ERROR_ONE){
+            showServerError();
+        }
+        if (error == ERROR_TWO){
+            showConnectionError();
+        }
+    }
+
     private void showWifiSettings() {
         Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
         startActivity(intent);
@@ -101,9 +117,9 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
 
     private void fetchSubstitutionCypherKey(int key) {
         FetchCipherKeyTask task = new FetchCipherKeyTask();
+        task.addListener(this);
         task.execute(key);
         currentKey = key;
-        task.addListener(this);
         //TODO on create pas faire squia en dessous
         String currentKey = String.format(getResources().getString(R.string.text_current_key), key);
         currentKeyTextView.setText(currentKey);

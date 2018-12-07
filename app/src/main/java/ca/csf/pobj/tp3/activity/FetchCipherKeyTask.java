@@ -1,6 +1,7 @@
 package ca.csf.pobj.tp3.activity;
 
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -21,6 +22,7 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
 
     private static final String URL = "https://m1t2.csfpwmjv.tk/api/key/%d";
     private final List<Listener> listeners = new ArrayList();
+    private int errorMessage = MainActivity.NO_ERROR;
 
     public void addListener(Listener listener) {
         listeners.add(listener);
@@ -35,7 +37,7 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
 
     @Override
     protected CipherKey doInBackground(Integer... integers) {
-        if (integers.length != 1){
+        if (integers.length != 1) {
             throw new IllegalArgumentException("You must provide one word.");
         }
 
@@ -48,28 +50,34 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
         Call call = client.newCall(request);
 
         try {
+            SystemClock.sleep(2000);
             Response response = call.execute();
-            if(response.isSuccessful()) {
+            if (response.isSuccessful()) {
                 String responseBody = response.body().string();
 
                 ObjectMapper mapper = new ObjectMapper();
-                CipherKey cipherKey =  mapper.readValue(responseBody, CipherKey.class);
-                return cipherKey;
+                return mapper.readValue(responseBody, CipherKey.class);
             } else {
-                //TODO : Erreur de serveur. Avertir nos listeners dans "onPostExecute"
+                errorMessage = MainActivity.ERROR_ONE;
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-            //TODO : Erreur avec l'internet. Avertir nos listeners dans "onPostExecute"
+            errorMessage = MainActivity.ERROR_TWO;
         }
-
         return null;
     }
 
     @Override
     protected void onPostExecute(CipherKey cipherKey) {
         for (Listener listener : listeners) {
-            listener.outputCypherKeyFound(cipherKey);
+            if (errorMessage == MainActivity.ERROR_ONE) {
+                listener.showErrorMessage(MainActivity.ERROR_ONE);
+            } else if (errorMessage == MainActivity.ERROR_TWO) {
+                listener.showErrorMessage(MainActivity.ERROR_TWO);
+            } else {
+                listener.outputCypherKeyFound(cipherKey);
+
+            }
             listener.hideProgressBar();
         }
 
@@ -77,7 +85,11 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
 
     public interface Listener {
         void outputCypherKeyFound(CipherKey cipherKey);
+
         void showProgressBar();
+
         void hideProgressBar();
+
+        void showErrorMessage(int error);
     }
 }
