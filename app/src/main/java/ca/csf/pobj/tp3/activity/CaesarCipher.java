@@ -33,6 +33,4 @@ public class CaesarCipher {
         }
         return stringBuilder;
     }
-
-
 }

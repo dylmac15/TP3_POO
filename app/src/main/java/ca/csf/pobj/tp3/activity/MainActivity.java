@@ -20,15 +20,19 @@ import ca.csf.pobj.tp3.R;
 import ca.csf.pobj.tp3.utils.view.CharactersFilter;
 import ca.csf.pobj.tp3.utils.view.KeyPickerDialog;
 
-public class MainActivity extends AppCompatActivity implements FetchCipherKeyTask.Listener {
+public class MainActivity extends AppCompatActivity {
+
+    private static final String STATE_INPUT_VALUE = "STATE_INPUT_VALUE";
+    private static final String STATE_OUTPUT_VALUE = "STATE_OUTPUT_VALUE";
+    private static final String STATE_CURRENT_KEY_TEXT_VALUE = "STATE_CURRENT_KEY_VALUE";
 
     private static final int KEY_LENGTH = 5;
-    private static final int MAX_KEY_VALUE = (int) Math.pow(10, KEY_LENGTH) - 1;
     private static final int MIN_RANDOM_VALUE = 0;
     private static final int MAX_RANDOM_VALUE = (int) Math.pow(10, KEY_LENGTH);
-    public static final int ERROR_ONE = 1;
-    public static final int ERROR_TWO = 2;
-    public static final int NO_ERROR = 0;
+    public static final String STATE_CIPHER_KEY = "STATE_CIPHER_KEY";
+    public static final String STATE_DIALOG = "STATE_DIALOG";
+
+
     private View rootView;
     private EditText inputEditText;
     private TextView outputTextView;
@@ -37,10 +41,12 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
     private CaesarCipher caesarCipher;
     private CipherKey cipherKey;
     private int currentKey;
+    private boolean keepStateDialog;
 
 
     public void outputCypherKeyFound(CipherKey cipherKey) {
         this.cipherKey = cipherKey;
+        hideProgressBar();
     }
 
     @Override
@@ -55,10 +61,20 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
         outputTextView = findViewById(R.id.output_textview);
         currentKeyTextView = findViewById(R.id.current_key_textview);
 
-        currentKey = randomKey();
-        String formattedKey = String.format(getResources().getString(R.string.text_current_key), currentKey);
-        currentKeyTextView.setText(formattedKey);
-        this.fetchSubstitutionCypherKey(currentKey);
+        if (savedInstanceState == null){
+            currentKey = randomKey();
+            String formattedKey = String.format(getResources().getString(R.string.text_current_key), currentKey);
+            currentKeyTextView.setText(formattedKey);
+            this.fetchSubstitutionCypherKey(currentKey);
+        } else {
+            cipherKey = savedInstanceState.getParcelable(STATE_CIPHER_KEY);
+            //noinspection ConstantConditions guaranteed not to be null
+            currentKey = cipherKey.getId();
+        }
+    }
+
+    private void changeStateDialog(){
+        this.keepStateDialog = false;
     }
 
     private int randomKey() {
@@ -70,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
         KeyPickerDialog.make(this, KEY_LENGTH)
                 .setKey(key)
                 .setConfirmAction(this::fetchSubstitutionCypherKey)
+                .setCancelAction(this::changeStateDialog)
                 .show();
     }
 
@@ -84,31 +101,20 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
                 .show();
     }
 
-
     private void showServerError() {
         Snackbar.make(rootView, R.string.text_server_error, Snackbar.LENGTH_INDEFINITE)
                 .show();
     }
 
-    @Override
     public void showProgressBar() {
         progressBar.setVisibility(View.VISIBLE);
     }
 
-    @Override
+
     public void hideProgressBar() {
         progressBar.setVisibility(View.INVISIBLE);
     }
 
-    @Override
-    public void showErrorMessage(int error) {
-        if (error == ERROR_ONE){
-            showServerError();
-        }
-        if (error == ERROR_TWO){
-            showConnectionError();
-        }
-    }
 
     private void showWifiSettings() {
         Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
@@ -116,16 +122,20 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
     }
 
     private void fetchSubstitutionCypherKey(int key) {
-        FetchCipherKeyTask task = new FetchCipherKeyTask();
-        task.addListener(this);
-        task.execute(key);
+        keepStateDialog = false;
+        FetchCipherKeyTask.run(key,
+                this::outputCypherKeyFound,
+                this::showServerError,
+                this::showConnectionError
+        );
+        showProgressBar();
         currentKey = key;
-        //TODO on create pas faire squia en dessous
+
         String currentKey = String.format(getResources().getString(R.string.text_current_key), key);
+
         currentKeyTextView.setText(currentKey);
     }
 
-    @SuppressWarnings("ConstantConditions")
     private void putTextInClipboard(String text) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         clipboard.setPrimaryClip(ClipData.newPlainText(getResources().getString(R.string.clipboard_encrypted_text), text));
@@ -133,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
 
     public void onKeySelectButtonClicked(View view) {
         this.showKeyPickerDialog(currentKey);
+        keepStateDialog = true;
     }
 
     public void onEncryptButtonClicked(View view) {
@@ -150,4 +161,28 @@ public class MainActivity extends AppCompatActivity implements FetchCipherKeyTas
         this.showCopiedToClipboardMessage();
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        inputEditText.setText(savedInstanceState.getCharSequence(STATE_INPUT_VALUE));
+        outputTextView.setText(savedInstanceState.getCharSequence(STATE_OUTPUT_VALUE));
+        currentKeyTextView.setText(savedInstanceState.getCharSequence(STATE_CURRENT_KEY_TEXT_VALUE));
+        keepStateDialog = savedInstanceState.getBoolean(STATE_DIALOG);
+        cipherKey = savedInstanceState.getParcelable(STATE_CIPHER_KEY);
+        if (keepStateDialog){
+            //noinspection ConstantConditions guaranteed not to be null
+            showKeyPickerDialog(cipherKey.getId());
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putCharSequence(STATE_INPUT_VALUE, inputEditText.getText());
+        outState.putCharSequence(STATE_OUTPUT_VALUE, outputTextView.getText());
+        outState.putCharSequence(STATE_CURRENT_KEY_TEXT_VALUE, currentKeyTextView.getText());
+        outState.putBoolean(STATE_DIALOG, keepStateDialog);
+        outState.putParcelable(STATE_CIPHER_KEY, cipherKey);
+    }
 }
+

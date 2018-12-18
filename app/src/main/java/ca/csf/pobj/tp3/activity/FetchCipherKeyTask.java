@@ -2,43 +2,50 @@ package ca.csf.pobj.tp3.activity;
 
 import android.os.AsyncTask;
 import android.os.SystemClock;
-import android.view.View;
-import android.widget.ProgressBar;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Consumer;
 
-
-import ca.csf.pobj.tp3.R;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
+public class FetchCipherKeyTask extends AsyncTask<Integer, Void, WebServiceResult<CipherKey>> {
 
     private static final String URL = "https://m1t2.csfpwmjv.tk/api/key/%d";
-    private final List<Listener> listeners = new ArrayList();
-    private int errorMessage = MainActivity.NO_ERROR;
 
-    public void addListener(Listener listener) {
-        listeners.add(listener);
+    private final Consumer<CipherKey> onSuccess;
+    private final Runnable onServerError;
+    private final Runnable onConnectivityError;
+
+    public static void run(int keyNumber,
+                           Consumer<CipherKey> onSuccess,
+                           Runnable onServerError,
+                           Runnable onConnectivityError) {
+        new FetchCipherKeyTask(onSuccess,
+                onServerError,
+                onConnectivityError
+        ).execute(keyNumber);
+    }
+
+
+    private FetchCipherKeyTask(Consumer<CipherKey> onSuccess,
+                               Runnable onServerError,
+                               Runnable onConnectivityError) {
+        this.onSuccess = onSuccess;
+        this.onServerError = onServerError;
+        this.onConnectivityError = onConnectivityError;
     }
 
     @Override
-    protected void onPreExecute() {
-        for (Listener listener : listeners) {
-            listener.showProgressBar();
-        }
-    }
-
-    @Override
-    protected CipherKey doInBackground(Integer... integers) {
+    protected WebServiceResult<CipherKey> doInBackground(Integer... integers) {
         if (integers.length != 1) {
-            throw new IllegalArgumentException("You must provide one word.");
+            throw new IllegalArgumentException("You must provide one number.");
         }
 
         OkHttpClient client = new OkHttpClient();
@@ -56,40 +63,33 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, CipherKey> {
                 String responseBody = response.body().string();
 
                 ObjectMapper mapper = new ObjectMapper();
-                return mapper.readValue(responseBody, CipherKey.class);
+
+                CipherKey result = mapper.readValue(
+                        responseBody,
+                        mapper.getTypeFactory().constructType(CipherKey.class)
+                );
+
+                return WebServiceResult.ok(result);
             } else {
-                errorMessage = MainActivity.ERROR_ONE;
+                return WebServiceResult.serverError();
             }
+        } catch (JsonParseException | JsonMappingException e) {
+            return WebServiceResult.serverError();
         } catch (IOException e) {
-            e.printStackTrace();
-            errorMessage = MainActivity.ERROR_TWO;
+            return WebServiceResult.connectivityError();
         }
-        return null;
     }
 
     @Override
-    protected void onPostExecute(CipherKey cipherKey) {
-        for (Listener listener : listeners) {
-            if (errorMessage == MainActivity.ERROR_ONE) {
-                listener.showErrorMessage(MainActivity.ERROR_ONE);
-            } else if (errorMessage == MainActivity.ERROR_TWO) {
-                listener.showErrorMessage(MainActivity.ERROR_TWO);
-            } else {
-                listener.outputCypherKeyFound(cipherKey);
+    protected void onPostExecute(WebServiceResult<CipherKey> result) {
 
-            }
-            listener.hideProgressBar();
+        if (result.isServerError()) {
+            onServerError.run();
+        } else if (result.isConnectivityError()) {
+            onConnectivityError.run();
+        } else {
+            onSuccess.accept(result.getResult());
         }
-
-    }
-
-    public interface Listener {
-        void outputCypherKeyFound(CipherKey cipherKey);
-
-        void showProgressBar();
-
-        void hideProgressBar();
-
-        void showErrorMessage(int error);
     }
 }
+
