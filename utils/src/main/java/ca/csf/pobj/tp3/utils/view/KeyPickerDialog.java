@@ -193,6 +193,7 @@ public final class KeyPickerDialog {
         dialogBuilder.setView(gridLayout);
         dialogBuilder.setPositiveButton(android.R.string.ok, (dialog, which) -> onOkButtonClicked());
         dialogBuilder.setNegativeButton(android.R.string.cancel, (dialog, which) -> onCancelButtonClicked());
+        dialogBuilder.setOnCancelListener(dialog1 -> onCancelButtonClicked());
     }
 
     private void onArrowButtonClicked(int index, int increment) {

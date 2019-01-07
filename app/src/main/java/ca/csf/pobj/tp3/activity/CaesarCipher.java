@@ -11,6 +11,7 @@ public class CaesarCipher {
     public StringBuilder encrypt(String string) {
         StringBuilder stringBuilder = new StringBuilder();
 
+
         for (Character stringCharacter : string.toCharArray()) {
             for (Character character : cipherKey.getInputCharacters().toCharArray()) {
                 if (stringCharacter.equals(character)) {
