@@ -8,6 +8,7 @@ public class CaesarCipher {
         this.cipherKey = cipherKey;
     }
 
+    //BEN_CORRECTION : Duplication de code (voir méthode decrypt).
     public StringBuilder encrypt(String string) {
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -22,6 +23,7 @@ public class CaesarCipher {
         return stringBuilder;
     }
 
+    //BEN_CORRECTION : Duplication de code (voir méthode encrypt).
     public StringBuilder decrypt(String string) {
         StringBuilder stringBuilder = new StringBuilder();
 

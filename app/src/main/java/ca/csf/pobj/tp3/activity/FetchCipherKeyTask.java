@@ -57,7 +57,7 @@ public class FetchCipherKeyTask extends AsyncTask<Integer, Void, WebServiceResul
         Call call = client.newCall(request);
 
         try {
-            SystemClock.sleep(2000);
+            SystemClock.sleep(2000); //BEN_REVIEW : Ne devrait pas être dans une remise.
             Response response = call.execute();
             if (response.isSuccessful()) {
                 String responseBody = response.body().string();

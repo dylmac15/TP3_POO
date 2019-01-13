@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int KEY_LENGTH = 5;
     private static final int MIN_RANDOM_VALUE = 0;
     private static final int MAX_RANDOM_VALUE = (int) Math.pow(10, KEY_LENGTH);
+    //BEN_CORRECTION : Devrait être private. x2.
     public static final String STATE_CIPHER_KEY = "STATE_CIPHER_KEY";
     public static final String STATE_DIALOG = "STATE_DIALOG";
 
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private CaesarCipher caesarCipher;
     private CipherKey cipherKey;
-    private int currentKey;
+    private int currentKey; //BEN_REVIEW : Duplication d'information. Aussi disponible dans "cipherKey".
     private boolean keepStateDialog;
 
 
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null){
             currentKey = randomKey();
+            //BEN_CORRECTION : Duplication de code (voir fetchSubstitutionCypherKey).
             String formattedKey = String.format(getResources().getString(R.string.text_current_key), currentKey);
             currentKeyTextView.setText(formattedKey);
             this.fetchSubstitutionCypherKey(currentKey);
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //BEN_CORRECTION : Nommage pas clair (voir mensonger).
     private void changeStateDialog(){
         this.keepStateDialog = false;
     }
@@ -171,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
         cipherKey = savedInstanceState.getParcelable(STATE_CIPHER_KEY);
         if (keepStateDialog){
             //noinspection ConstantConditions guaranteed not to be null
+            //BEN_CORRECITON : Pas tout à fait vrai. Si l'application démarre sans "Internet".
             showKeyPickerDialog(cipherKey.getId());
         }
     }
